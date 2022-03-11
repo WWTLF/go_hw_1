@@ -16,9 +16,9 @@ func Unpack(inputString string) (string, error) {
 	var responseBuilder strings.Builder
 	for index, inputCharCode := range inputString {
 		switch {
-		case string(inputCharCode) == `\` && !isPreviousEscape:
+		case inputCharCode == '\\' && !isPreviousEscape:
 			isPreviousEscape = true
-		case !unicode.IsDigit(inputCharCode) && isPreviousEscape && string(inputCharCode) != `\`:
+		case !unicode.IsDigit(inputCharCode) && isPreviousEscape && inputCharCode != '\\':
 			return "", ErrInvalidString
 		case !unicode.IsDigit(inputCharCode) || isPreviousEscape:
 			if index != 0 && isPreviousChar {
