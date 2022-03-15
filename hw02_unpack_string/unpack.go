@@ -14,7 +14,9 @@ func Unpack(inputString string) (string, error) {
 	isPreviousEscape := false
 	var charCodeToRepeat rune
 	var responseBuilder strings.Builder
-	for index, inputCharCode := range inputString {
+	inputStrRuneArray := []rune(inputString)
+	inputStrLen := len(inputStrRuneArray)
+	for index, inputCharCode := range inputStrRuneArray {
 		switch {
 		case inputCharCode == '\\' && !isPreviousEscape:
 			isPreviousEscape = true
@@ -24,7 +26,7 @@ func Unpack(inputString string) (string, error) {
 			if index != 0 && isPreviousChar {
 				responseBuilder.WriteRune(charCodeToRepeat)
 			}
-			if index == len(inputString)-1 {
+			if index == inputStrLen-1 {
 				responseBuilder.WriteRune(inputCharCode)
 			}
 			charCodeToRepeat = inputCharCode
