@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -42,6 +42,35 @@ var text = `Как видите, он  спускается  по  лестни�
 	иногда,  особенно  когда  папа  дома,  он больше любит тихонько
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
+
+func TestDebug(t *testing.T) {
+	require.Equal(t, []string{"ба", "бу", "ля"}, Top10("бу бу ля ба ба"))
+}
+
+func TestSorting(t *testing.T) {
+	e1 := &wordEntry{
+		word:  "бу",
+		count: 2,
+	}
+
+	e2 := &wordEntry{
+		word:  "ба",
+		count: 2,
+	}
+
+	e3 := &wordEntry{
+		word:  "ля",
+		count: 1,
+	}
+
+	require.Equal(t, []*wordEntry{e2, e1, e3}, sortEntries([]*wordEntry{e3, e2, e1}))
+}
+
+func TestIfThenElse(t *testing.T) {
+	require.Equal(t, IfThenElse(1 == 1, "Yes", false), "Yes") //nolint:gocritic,staticcheck
+	require.Equal(t, IfThenElse(1 != 1, nil, 1), 1)           //nolint:gocritic,staticcheck
+	require.Equal(t, IfThenElse(1 < 2, nil, "No"), nil)
+}
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
