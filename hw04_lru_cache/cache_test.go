@@ -1,6 +1,7 @@
 package hw04lrucache
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -50,7 +51,41 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(5)
+		for i := 0; i < 6; i++ {
+			c.Set(Key(fmt.Sprintf("%d", i)), i)
+		}
+		val, ok := c.Get("0")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("1")
+		require.True(t, ok)
+		require.Equal(t, 1, val)
+
+		for i := 2; i < 6; i++ {
+			val, ok = c.Get(Key(fmt.Sprintf("%d", i)))
+			require.True(t, ok)
+			require.Equal(t, i, val)
+		}
+
+		c.Set(Key(fmt.Sprintf("%d", 7)), 7)
+		val, ok = c.Get("1")
+		require.False(t, ok)
+		require.Nil(t, val)
+	})
+
+	t.Run("clear", func(t *testing.T) {
+		c := NewCache(5)
+		for i := 0; i < 5; i++ {
+			c.Set(Key(fmt.Sprintf("%d", i)), i)
+		}
+		c.Clear()
+		for i := 0; i < 5; i++ {
+			val, ok := c.Get(Key(fmt.Sprintf("%d", i)))
+			require.False(t, ok)
+			require.Nil(t, val)
+		}
 	})
 }
 
