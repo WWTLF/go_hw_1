@@ -50,7 +50,8 @@ func TestRun(t *testing.T) {
 			sumTime += taskSleep
 
 			tasks = append(tasks, func() error {
-				time.Sleep(taskSleep)
+				MySleep(t, taskSleep)
+				// time.Sleep(taskSleep)
 				atomic.AddInt32(&runTasksCount, 1)
 				return nil
 			})
@@ -67,4 +68,93 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
+}
+
+func TestErrCountLogic(t *testing.T) {
+	t.Run("Error count m > 0 error", func(t *testing.T) {
+		tasks := make([]Task, 0, 5)
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+
+		err := Run(tasks, 2, 2)
+		require.Error(t, err, ErrErrorsLimitExceeded)
+	})
+
+	t.Run("Error count m == 0 no error", func(t *testing.T) {
+		tasks := make([]Task, 0, 5)
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+
+		err := Run(tasks, 2, 0)
+		require.NoError(t, err)
+	})
+
+	t.Run("Error count m = 3 no error", func(t *testing.T) {
+		tasks := make([]Task, 0, 5)
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return nil
+		})
+		tasks = append(tasks, func() error {
+			return errors.New("I am not OK")
+		})
+
+		err := Run(tasks, 2, 3)
+		require.NoError(t, err)
+	})
+}
+
+func MySleep(t *testing.T, d time.Duration) {
+	t.Helper()
+	if d == 0 {
+		return
+	}
+	start := time.Now()
+	require.Eventually(t, func() bool {
+		ellapsedTime := time.Since(start)
+		return ellapsedTime >= d
+	}, d*10, time.Millisecond)
 }
