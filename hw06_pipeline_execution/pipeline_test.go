@@ -126,15 +126,7 @@ func TestDataAndStages(t *testing.T) {
 
 	t.Run("Empty stages", func(t *testing.T) {
 		in := make(Bi)
-		done := make(Bi)
 		data := []int{1, 2, 3, 4, 5}
-
-		// Abort after 200ms
-		abortDur := sleepPerStage * 2
-		go func() {
-			<-time.After(abortDur)
-			close(done)
-		}()
 
 		go func() {
 			for _, v := range data {
